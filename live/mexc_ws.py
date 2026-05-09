@@ -1,9 +1,4 @@
 import sys
-import os
-_quant_v2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_parent = os.path.dirname(_quant_v2)
-if _parent not in sys.path:
-    sys.path.insert(0, _parent)
 
 import asyncio
 import json

@@ -1,16 +1,12 @@
 import sys
-import os
 _script = os.path.dirname(os.path.abspath(__file__))
-_grandparent = os.path.dirname(os.path.dirname(_script))
-if _grandparent not in sys.path:
-    sys.path.insert(0, _grandparent)
 
 import plotly.graph_objects as go
 from dash import Input, Output, html
 import numpy as np
 from datetime import datetime
 
-from quant_v2.dashboard.layout import GREEN, RED, BLUE, YELLOW, PURPLE, GRAY, WHITE, BG, CARD, BORDER, TRADE_ROW_GREEN, TRADE_ROW_RED, TRADE_ROW_NEUTRAL
+from dashboard.layout import GREEN, RED, BLUE, YELLOW, PURPLE, GRAY, WHITE, BG, CARD, BORDER, TRADE_ROW_GREEN, TRADE_ROW_RED, TRADE_ROW_NEUTRAL
 
 
 def register_callbacks(app, provider):

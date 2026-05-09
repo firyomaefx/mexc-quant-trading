@@ -14,30 +14,26 @@ Commands:
 """
 
 import sys
-import os
 import argparse
 import json
 from datetime import datetime
 from typing import Dict, List
 
 _script_dir = os.path.dirname(os.path.abspath(__file__))
-_parent = os.path.dirname(_script_dir)
-if _parent not in sys.path:
-    sys.path.insert(0, _parent)
 
 from dotenv import load_dotenv
 load_dotenv(os.path.join(_parent, ".env"))
 
-from quant_v2.config.crypto_config import CryptoConfig, CRYPTO_CONFIG
-from quant_v2.config.pairs import get_pair_config, list_enabled_symbols, list_all_symbols
-from quant_v2.live.mexc_adapter import MEXCConnector
-from quant_v2.live.mexc_hybrid import MEXCHybridConnector
-from quant_v2.live.mexc_futures import MEXCFuturesConnector
-from quant_v2.live.paper_trader import PaperTrader
-from quant_v2.live.scalper import Scalper
-from quant_v2.backtest.walk_forward import WalkForwardBacktester
-from quant_v2.backtest.multi_pair_bt import MultiPairBacktester
-from quant_v2.signals.sentiment import SentimentAnalyzer
+from config.crypto_config import CryptoConfig, CRYPTO_CONFIG
+from config.pairs import get_pair_config, list_enabled_symbols, list_all_symbols
+from live.mexc_adapter import MEXCConnector
+from live.mexc_hybrid import MEXCHybridConnector
+from live.mexc_futures import MEXCFuturesConnector
+from live.paper_trader import PaperTrader
+from live.scalper import Scalper
+from backtest.walk_forward import WalkForwardBacktester
+from backtest.multi_pair_bt import MultiPairBacktester
+from signals.sentiment import SentimentAnalyzer
 
 
 def get_config() -> CryptoConfig:

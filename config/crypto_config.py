@@ -1,9 +1,4 @@
 import sys
-import os
-_quant_v2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_parent = os.path.dirname(_quant_v2)
-if _parent not in sys.path:
-    sys.path.insert(0, _parent)
 
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
@@ -161,7 +156,7 @@ class CryptoConfig:
 
     @classmethod
     def with_default_pairs(cls) -> "CryptoConfig":
-        from quant_v2.config.pairs import DEFAULT_PAIRS
+        from config.pairs import DEFAULT_PAIRS
         cfg = cls()
         cfg.pairs = DEFAULT_PAIRS
         return cfg

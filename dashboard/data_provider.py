@@ -1,9 +1,5 @@
 import sys
-import os
 _script = os.path.dirname(os.path.abspath(__file__))
-_grandparent = os.path.dirname(os.path.dirname(_script))
-if _grandparent not in sys.path:
-    sys.path.insert(0, _grandparent)
 
 import time
 import threading

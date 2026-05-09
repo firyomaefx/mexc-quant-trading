@@ -1,9 +1,4 @@
 import sys
-import os
-_quant_v2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_parent = os.path.dirname(_quant_v2)
-if _parent not in sys.path:
-    sys.path.insert(0, _parent)
 
 import asyncio
 import numpy as np
@@ -14,23 +9,23 @@ from typing import Dict, List, Optional, Tuple, Set
 from datetime import datetime
 from collections import deque
 
-from quant_v2.config.crypto_config import CryptoConfig, PairConfig
-from quant_v2.config.pairs import get_pair_config, list_enabled_symbols
-from quant_v2.live.mexc_adapter import MEXCConnector
-from quant_v2.live.mexc_hybrid import MEXCHybridConnector
-from quant_v2.live.mexc_futures import MEXCFuturesConnector
-from quant_v2.live.mexc_ws import MEXCWebSocket
+from config.crypto_config import CryptoConfig, PairConfig
+from config.pairs import get_pair_config, list_enabled_symbols
+from live.mexc_adapter import MEXCConnector
+from live.mexc_hybrid import MEXCHybridConnector
+from live.mexc_futures import MEXCFuturesConnector
+from live.mexc_ws import MEXCWebSocket
 from signals.generator import SignalGenerator
-from quant_v2.signals.sentiment import SentimentAnalyzer
-from quant_v2.signals.llm_sentiment import LLMSentimentAnalyzer
-from quant_v2.signals.mtf_filter import MTFFilter
-from quant_v2.signals.ml_ensemble import MLSignalEnhancer
-from quant_v2.signals.rl_agent import RLAgent
-from quant_v2.signals.pair_correlation import CorrelationFilter
-from quant_v2.risk.circuit_breaker import CircuitBreaker
-from quant_v2.risk.portfolio_risk import PortfolioRiskManager
-from quant_v2.risk.futures_risk import FuturesRiskManager
-from quant_v2.risk.exits_v2 import combined_exit
+from signals.sentiment import SentimentAnalyzer
+from signals.llm_sentiment import LLMSentimentAnalyzer
+from signals.mtf_filter import MTFFilter
+from signals.ml_ensemble import MLSignalEnhancer
+from signals.rl_agent import RLAgent
+from signals.pair_correlation import CorrelationFilter
+from risk.circuit_breaker import CircuitBreaker
+from risk.portfolio_risk import PortfolioRiskManager
+from risk.futures_risk import FuturesRiskManager
+from risk.exits_v2 import combined_exit
 from risk.stops import atr_from_df
 from config.settings import ThresholdConfig, WindowConfig, GoldConfig
 

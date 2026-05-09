@@ -1,16 +1,11 @@
 import sys
-import os
-_quant_v2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_parent = os.path.dirname(_quant_v2)
-if _parent not in sys.path:
-    sys.path.insert(0, _parent)
 
 import numpy as np
 import pandas as pd
 from typing import Optional, Dict, Tuple, List
 from collections import deque
 
-from quant_v2.config.crypto_config import MLConfig
+from config.crypto_config import MLConfig
 
 
 class MLSignalEnhancer:

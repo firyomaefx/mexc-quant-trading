@@ -1,10 +1,7 @@
 import sys
-import os
 import argparse
 
 _script = os.path.dirname(os.path.abspath(__file__))
-_parent = os.path.dirname(_script)
-_grandparent = os.path.dirname(_parent)
 for p in [_grandparent, _parent, _script]:
     if p not in sys.path:
         sys.path.insert(0, p)
@@ -12,10 +9,10 @@ for p in [_grandparent, _parent, _script]:
 from dotenv import load_dotenv
 load_dotenv(os.path.join(_grandparent, ".env"))
 
-from quant_v2.dashboard.layout import app, build_full_layout
-from quant_v2.dashboard.callbacks import register_callbacks
-from quant_v2.dashboard.data_provider import DashboardDataProvider
-from quant_v2.config.crypto_config import CryptoConfig
+from dashboard.layout import app, build_full_layout
+from dashboard.callbacks import register_callbacks
+from dashboard.data_provider import DashboardDataProvider
+from config.crypto_config import CryptoConfig
 
 
 def create_dashboard(mode="paper", config=None, api_key="", api_secret=""):
@@ -23,14 +20,14 @@ def create_dashboard(mode="paper", config=None, api_key="", api_secret=""):
         config = CryptoConfig.with_default_pairs()
 
     if mode == "live":
-        from quant_v2.live.scalper import Scalper
+        from live.scalper import Scalper
         scalper = Scalper(config, api_key=api_key, api_secret=api_secret)
         provider = DashboardDataProvider(config, scalper=scalper)
         provider.connected = getattr(scalper.mexc, "connected", False)
     elif mode == "paper":
-        from quant_v2.live.paper_trader import PaperTrader
+        from live.paper_trader import PaperTrader
         proxy = os.getenv("MEXC_PROXY", "")
-        from quant_v2.live.mexc_hybrid import MEXCHybridConnector
+        from live.mexc_hybrid import MEXCHybridConnector
         mexc = MEXCHybridConnector(api_key, api_secret, proxy=proxy)
         mexc.connect()
         pt = PaperTrader(config, mexc)

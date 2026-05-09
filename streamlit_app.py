@@ -3,7 +3,6 @@ MEXC Quant Trading Bot — Streamlit Dashboard
 Deploy on: share.streamlit.io → firyomaefx/mexc-quant-trading → streamlit_app.py
 """
 import sys
-import os
 import threading
 import time
 from datetime import datetime

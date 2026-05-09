@@ -1,18 +1,13 @@
 import sys
-import os
-_quant_v2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_parent = os.path.dirname(_quant_v2)
-if _parent not in sys.path:
-    sys.path.insert(0, _parent)
 
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 
-from quant_v2.config.crypto_config import CryptoConfig
-from quant_v2.config.pairs import get_pair_config, list_enabled_symbols
-from quant_v2.backtest.walk_forward import WalkForwardBacktester
+from config.crypto_config import CryptoConfig
+from config.pairs import get_pair_config, list_enabled_symbols
+from backtest.walk_forward import WalkForwardBacktester
 
 
 class MultiPairBacktester:

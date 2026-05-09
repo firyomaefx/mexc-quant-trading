@@ -3,10 +3,7 @@ Quant V2 - Live Paper Trading Engine
 Continuously fetches MEXC data, generates signals, updates dashboard in real-time.
 """
 import sys
-import os
 _script_dir = os.path.dirname(os.path.abspath(__file__))
-_quant_v2 = os.path.dirname(_script_dir)
-_parent = os.path.dirname(_quant_v2)
 for p in [_parent, _quant_v2]:
     if p not in sys.path:
         sys.path.insert(0, p)
@@ -19,18 +16,18 @@ from datetime import datetime
 from collections import deque
 from typing import Dict, List
 
-from quant_v2.config.crypto_config import CryptoConfig
-from quant_v2.config.pairs import get_pair_config, list_enabled_symbols
-from quant_v2.live.mexc_hybrid import MEXCHybridConnector
+from config.crypto_config import CryptoConfig
+from config.pairs import get_pair_config, list_enabled_symbols
+from live.mexc_hybrid import MEXCHybridConnector
 from signals.generator import SignalGenerator
-from quant_v2.signals.llm_sentiment import LLMSentimentAnalyzer
-from quant_v2.signals.mtf_filter import MTFFilter
-from quant_v2.signals.ml_ensemble import MLSignalEnhancer
-from quant_v2.signals.rl_agent import RLAgent
-from quant_v2.signals.pair_correlation import CorrelationFilter
-from quant_v2.risk.circuit_breaker import CircuitBreaker
-from quant_v2.risk.portfolio_risk import PortfolioRiskManager
-from quant_v2.risk.exits_v2 import combined_exit
+from signals.llm_sentiment import LLMSentimentAnalyzer
+from signals.mtf_filter import MTFFilter
+from signals.ml_ensemble import MLSignalEnhancer
+from signals.rl_agent import RLAgent
+from signals.pair_correlation import CorrelationFilter
+from risk.circuit_breaker import CircuitBreaker
+from risk.portfolio_risk import PortfolioRiskManager
+from risk.exits_v2 import combined_exit
 from risk.stops import atr_from_df
 from config.settings import ThresholdConfig, WindowConfig
 

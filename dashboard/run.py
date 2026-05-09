@@ -4,7 +4,6 @@ Run: python quant_v2/dashboard/run.py --mode paper
 Then open: http://127.0.0.1:8052
 """
 import sys
-import os
 _script_dir = os.path.dirname(os.path.abspath(__file__))
 _quant_v2_dir = os.path.dirname(_script_dir)
 _math_trading_dir = os.path.dirname(_quant_v2_dir)
@@ -212,7 +211,7 @@ def main():
     parser.add_argument("--interval",type=int,default=60,help="Seconds between MEXC data polls")
     args = parser.parse_args()
 
-    from quant_v2.config.crypto_config import CryptoConfig
+    from config.crypto_config import CryptoConfig
     config = CryptoConfig.with_default_pairs()
     pairs = list(config.scalping.pairs)
     api_key = os.getenv("MEXC_API_KEY","")
@@ -225,8 +224,8 @@ def main():
     print(f"  Refresh: every {args.interval}s")
     print(f"{'='*60}\n")
 
-    from quant_v2.live.mexc_hybrid import MEXCHybridConnector
-    from quant_v2.live.live_paper import LivePaperEngine
+    from live.mexc_hybrid import MEXCHybridConnector
+    from live.live_paper import LivePaperEngine
 
     mexc = MEXCHybridConnector(api_key=api_key, api_secret=api_secret, proxy=os.getenv("MEXC_PROXY",""))
     mexc.connect()

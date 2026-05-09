@@ -1,9 +1,4 @@
 import sys
-import os
-_quant_v2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_parent = os.path.dirname(_quant_v2)
-if _parent not in sys.path:
-    sys.path.insert(0, _parent)
 
 import numpy as np
 import pandas as pd
@@ -12,18 +7,18 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 from collections import deque
 
-from quant_v2.config.crypto_config import CryptoConfig, PaperConfig, PairConfig
-from quant_v2.config.pairs import get_pair_config, list_enabled_symbols
+from config.crypto_config import CryptoConfig, PaperConfig, PairConfig
+from config.pairs import get_pair_config, list_enabled_symbols
 from signals.generator import SignalGenerator
-from quant_v2.signals.sentiment import SentimentAnalyzer
-from quant_v2.signals.llm_sentiment import LLMSentimentAnalyzer
-from quant_v2.signals.mtf_filter import MTFFilter
-from quant_v2.signals.ml_ensemble import MLSignalEnhancer
-from quant_v2.signals.rl_agent import RLAgent
-from quant_v2.signals.pair_correlation import CorrelationFilter
-from quant_v2.risk.circuit_breaker import CircuitBreaker
-from quant_v2.risk.portfolio_risk import PortfolioRiskManager
-from quant_v2.risk.exits_v2 import combined_exit
+from signals.sentiment import SentimentAnalyzer
+from signals.llm_sentiment import LLMSentimentAnalyzer
+from signals.mtf_filter import MTFFilter
+from signals.ml_ensemble import MLSignalEnhancer
+from signals.rl_agent import RLAgent
+from signals.pair_correlation import CorrelationFilter
+from risk.circuit_breaker import CircuitBreaker
+from risk.portfolio_risk import PortfolioRiskManager
+from risk.exits_v2 import combined_exit
 from risk.stops import atr_from_df
 from config.settings import ThresholdConfig, WindowConfig
 

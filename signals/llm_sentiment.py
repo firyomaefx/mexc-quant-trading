@@ -1,16 +1,11 @@
 import sys
-import os
-_quant_v2 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_parent = os.path.dirname(_quant_v2)
-if _parent not in sys.path:
-    sys.path.insert(0, _parent)
 
 import json
 import time
 from typing import Optional, Dict
 from datetime import datetime
 
-from quant_v2.config.crypto_config import SentimentConfig
+from config.crypto_config import SentimentConfig
 
 
 class LLMSentimentAnalyzer:
@@ -42,7 +37,7 @@ class LLMSentimentAnalyzer:
 
         news_headlines = self._fetch_news_headlines(symbol)
         if not news_headlines:
-            from quant_v2.signals.sentiment import SentimentAnalyzer
+            from signals.sentiment import SentimentAnalyzer
             fallback = SentimentAnalyzer(self.config)
             return fallback.get_sentiment(symbol)
 
