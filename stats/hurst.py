@@ -1,10 +1,8 @@
 import os
 import sys
 import numpy as np
-from numba import jit
 
 
-@jit(nopython=True)
 def _hurst_var(series: np.ndarray, max_lag: int = 20) -> float:
     n = len(series)
     max_lag = min(max_lag, n // 4)
