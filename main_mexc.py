@@ -21,10 +21,8 @@ import json
 from datetime import datetime
 from typing import Dict, List
 
-_script_dir = os.path.dirname(os.path.abspath(__file__))
-
 from dotenv import load_dotenv
-load_dotenv(os.path.join(_parent, ".env"))
+load_dotenv()
 
 from config.crypto_config import CryptoConfig, CRYPTO_CONFIG
 from config.pairs import get_pair_config, list_enabled_symbols, list_all_symbols

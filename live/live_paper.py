@@ -1,15 +1,9 @@
-import os
-import sys
 """
 Quant V2 - Live Paper Trading Engine
 Continuously fetches MEXC data, generates signals, updates dashboard in real-time.
 """
+import os
 import sys
-_script_dir = os.path.dirname(os.path.abspath(__file__))
-for p in [_parent, _quant_v2]:
-    if p not in sys.path:
-        sys.path.insert(0, p)
-
 import time
 import threading
 import numpy as np

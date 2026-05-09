@@ -1,15 +1,9 @@
 import os
 import sys
-import sys
 import argparse
 
-_script = os.path.dirname(os.path.abspath(__file__))
-for p in [_grandparent, _parent, _script]:
-    if p not in sys.path:
-        sys.path.insert(0, p)
-
 from dotenv import load_dotenv
-load_dotenv(os.path.join(_grandparent, ".env"))
+load_dotenv()
 
 from dashboard.layout import app, build_full_layout
 from dashboard.callbacks import register_callbacks
