@@ -2,10 +2,8 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from numba import jit
 
 
-@jit(nopython=True)
 def _rolling_mean_std(series: np.ndarray, window: int) -> tuple:
     n = len(series)
     mean = np.full(n, np.nan)

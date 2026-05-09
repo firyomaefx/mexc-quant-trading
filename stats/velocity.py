@@ -1,10 +1,8 @@
 import os
 import sys
 import numpy as np
-from numba import jit
 
 
-@jit(nopython=True)
 def _rolling_ma(series: np.ndarray, window: int) -> np.ndarray:
     n = len(series)
     ma = np.full(n, np.nan)
