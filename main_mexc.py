@@ -1,3 +1,5 @@
+import os
+import sys
 #!/usr/bin/env python
 """
 Quant V2 - AI-Powered Multi-Pair MEXC Scalping Bot

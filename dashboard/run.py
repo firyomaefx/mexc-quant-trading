@@ -1,3 +1,5 @@
+import os
+import sys
 """
 Quant V2 - MEXC Live Paper Trading Dashboard
 Run: python quant_v2/dashboard/run.py --mode paper

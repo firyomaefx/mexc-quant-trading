@@ -1,3 +1,5 @@
+import os
+import sys
 """
 Quant V2 - Live Paper Trading Engine
 Continuously fetches MEXC data, generates signals, updates dashboard in real-time.

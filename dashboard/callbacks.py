@@ -1,3 +1,5 @@
+import os
+import sys
 import sys
 _script = os.path.dirname(os.path.abspath(__file__))
 
