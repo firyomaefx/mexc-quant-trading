@@ -48,7 +48,7 @@ class ScalpingConfig:
     max_drawdown_pct: float = 0.15
     max_concurrent_positions: int = 2
     max_positions_per_pair: int = 1
-    cooldown_seconds: float = 60.0
+    cooldown_seconds: float = 40.0
     min_zscore_confidence: float = 1.2
     max_spread_pct: float = 0.15
     max_volatility_ratio: float = 2.0
@@ -134,7 +134,7 @@ class PaperConfig:
 @dataclass
 class BacktestConfig:
     initial_capital: float = 18.0
-    commission_pct: float = 0.05
+    commission_pct: float = 0.02
     slippage_pct: float = 0.08
     train_months: int = 3
     test_months: int = 1
