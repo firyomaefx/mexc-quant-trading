@@ -42,19 +42,19 @@ class ScalpingConfig:
     primary_tf: int = 1
     secondary_tf: int = 5
     tertiary_tf: int = 15
-    initial_capital: float = 160.0
+    initial_capital: float = 18.0
     account_risk_pct: float = 0.015
     max_daily_loss_pct: float = 0.05
     max_drawdown_pct: float = 0.15
-    max_concurrent_positions: int = 3
+    max_concurrent_positions: int = 2
     max_positions_per_pair: int = 1
-    cooldown_seconds: float = 90.0
+    cooldown_seconds: float = 60.0
     min_zscore_confidence: float = 1.2
     max_spread_pct: float = 0.15
     max_volatility_ratio: float = 2.0
-    max_consecutive_losses: int = 3
+    max_consecutive_losses: int = 4
     trade_min_interval_seconds: float = 60.0
-    max_total_exposure_pct: float = 0.60
+    max_total_exposure_pct: float = 0.55
     dynamic_sizing: bool = True
 
 
@@ -113,7 +113,7 @@ class SentimentConfig:
 
 @dataclass
 class FuturesConfig:
-    enabled: bool = False
+    enabled: bool = True
     max_leverage: int = 3
     margin_mode: str = "isolated"
     liq_safety_pct: float = 0.20
@@ -133,7 +133,7 @@ class PaperConfig:
 
 @dataclass
 class BacktestConfig:
-    initial_capital: float = 160.0
+    initial_capital: float = 18.0
     commission_pct: float = 0.05
     slippage_pct: float = 0.08
     train_months: int = 3
