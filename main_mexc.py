@@ -170,6 +170,59 @@ def cmd_sentiment(args):
     print("=" * 50 + "\n")
 
 
+def cmd_obsidian(args):
+    print("\n" + "=" * 50)
+    print("  OBSIDIAN VAULT SYNC")
+    print("=" * 50)
+
+    try:
+        from obsidian.vault_detector import detect_vault
+        from obsidian.config import get_obsidian_config
+        cfg = get_obsidian_config()
+    except Exception as e:
+        print(f"  [obsidian] import failed: {e}")
+        return
+
+    if args.vault:
+        cfg.vault_path = args.vault
+
+    if args.detect:
+        detected = detect_vault(cfg.vault_path)
+        if detected:
+            print(f"  Detected vault: {detected}")
+        else:
+            print("  No vault detected")
+        return
+
+    if args.verify:
+        ok, msg = cfg.is_valid()
+        print(f"  enabled: {cfg.enabled}")
+        print(f"  vault_path: {cfg.vault_path}")
+        print(f"  project_folder: {cfg.project_folder}")
+        print(f"  is_valid: {ok} ({msg})")
+        return
+
+    from obsidian.sync import main as obsidian_sync_main
+    import sys as _sys
+    old_argv = _sys.argv
+    _sys.argv = ["obsidian.sync"]
+    if args.vault:
+        _sys.argv += ["--vault", args.vault]
+    if args.date:
+        _sys.argv += ["--date", args.date]
+    if args.trades_only:
+        _sys.argv.append("--trades-only")
+    if args.summary_only:
+        _sys.argv.append("--summary-only")
+    try:
+        rc = obsidian_sync_main()
+        _sys.argv = old_argv
+        return rc
+    except SystemExit as e:
+        _sys.argv = old_argv
+        return e.code
+
+
 def cmd_pairs(args):
     cfg = get_config()
     print("\n" + "=" * 60)
@@ -241,6 +294,14 @@ def main():
 
     subparsers.add_parser("pairs", help="List configured trading pairs")
 
+    obsidian_parser = subparsers.add_parser("obsidian", help="Sync trades to Obsidian vault")
+    obsidian_parser.add_argument("--vault", type=str, default="", help="Override vault path")
+    obsidian_parser.add_argument("--date", type=str, default="", help="Target date (YYYY-MM-DD)")
+    obsidian_parser.add_argument("--trades-only", action="store_true", help="Sync trade notes only")
+    obsidian_parser.add_argument("--summary-only", action="store_true", help="Sync daily summary only")
+    obsidian_parser.add_argument("--detect", action="store_true", help="Detect vault and exit")
+    obsidian_parser.add_argument("--verify", action="store_true", help="Verify config and exit")
+
     dashboard_parser = subparsers.add_parser("dashboard", help="Launch trading dashboard")
     dashboard_parser.add_argument("--port", type=int, default=8052, help="Dashboard port")
     dashboard_parser.add_argument("--mode", choices=["live", "paper", "offline"], default="paper",
@@ -258,6 +319,8 @@ def main():
         cmd_sentiment(args)
     elif args.command == "pairs":
         cmd_pairs(args)
+    elif args.command == "obsidian":
+        cmd_obsidian(args)
     elif args.command == "dashboard":
         cmd_dashboard(args)
     else:

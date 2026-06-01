@@ -30,6 +30,7 @@ Thumbs.db
 *.log
 logs/
 paper_reports/
+trade_journal.csv
 
 .pytest_cache/
 .coverage

@@ -61,6 +61,88 @@ def metric_card(label, value, suffix="", color="#e6edf3"):
     """, unsafe_allow_html=True)
 
 
+def render_obsidian_panel():
+    try:
+        from obsidian.config import get_obsidian_config
+        from obsidian.vault_detector import vault_exists
+        from obsidian.trade_logger import get_trade_logger
+        from obsidian.daily_summary import get_daily_summary
+        from obsidian.index_updater import IndexUpdater
+        ob_available = True
+    except Exception as e:
+        ob_available = False
+        ob_error = str(e)
+
+    with st.expander("Obsidian Sync", expanded=False):
+        if not ob_available:
+            st.warning(f"obsidian module not available: {ob_error}")
+            return
+        try:
+            cfg = get_obsidian_config()
+            ok, msg = cfg.is_valid()
+            if not ok:
+                st.warning(f"vault not configured: {msg}")
+                st.caption(f"path: `{cfg.vault_path}`")
+                return
+
+            st.caption(f"vault: `{cfg.vault_path}`")
+            st.caption(f"project: `{cfg.project_folder}`")
+            logger = get_trade_logger()
+            today_count = len(logger.read_today_trades())
+            st.metric("trades today", today_count)
+
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button("Sync Trades", use_container_width=True, key="ob_sync_trades"):
+                    try:
+                        trades = logger.read_today_trades()
+                        for t in trades:
+                            trade_dict = {k: t.get(k, "") for k in [
+                                "symbol", "side", "entry_price", "exit_price", "qty",
+                                "notional", "gross_pnl", "commission", "pnl", "pnl_pct",
+                                "duration_bars", "exit_reason", "z_score", "ema_slope",
+                                "ml_confidence",
+                            ]}
+                            for k in ("entry_price", "exit_price", "qty", "notional",
+                                      "gross_pnl", "commission", "pnl", "pnl_pct",
+                                      "z_score", "ema_slope", "ml_confidence"):
+                                try:
+                                    trade_dict[k] = float(trade_dict.get(k, 0.0))
+                                except (ValueError, TypeError):
+                                    trade_dict[k] = 0.0
+                            try:
+                                trade_dict["duration_bars"] = int(trade_dict.get("duration_bars", 0))
+                            except (ValueError, TypeError):
+                                trade_dict["duration_bars"] = 0
+                            trade_dict["entry_time"] = t.get("timestamp", "")
+                            trade_dict["exit_time"] = t.get("timestamp", "")
+                            trade_dict["date"] = t.get("date", "")
+                            trade_dict["side"] = (trade_dict.get("side", "LONG") or "LONG").upper()
+                            logger.log_trade(trade_dict)
+                        updater = IndexUpdater()
+                        updater.update_trade_index()
+                        st.success(f"synced {len(trades)} trades")
+                    except Exception as e:
+                        st.error(f"sync failed: {e}")
+            with c2:
+                if st.button("Daily Summary", use_container_width=True, key="ob_sync_summary"):
+                    try:
+                        summary = get_daily_summary()
+                        path = summary.write_daily()
+                        if path:
+                            updater = IndexUpdater()
+                            agg = summary.aggregate()
+                            updater.update_summary_index()
+                            updater.update_trade_journal(agg)
+                            st.success(f"wrote {path}")
+                        else:
+                            st.info("no trades to summarize")
+                    except Exception as e:
+                        st.error(f"summary failed: {e}")
+        except Exception as e:
+            st.error(f"obsidian error: {e}")
+
+
 def pair_card(symbol, pdata):
     price = pdata.get("price", 0)
     sig = pdata.get("signal", 0)
@@ -160,6 +242,8 @@ def main():
             metric_card("Breaker", cb_bre, color=cb_col)
             metric_card("Consec Loss", f"{d.get('consecutive_losses', 0)}", color=YELLOW)
             metric_card("Sentiment", f"{d.get('sentiment', 0):+.2f}", color=GREEN if d.get("sentiment", 0) > 0.15 else RED if d.get("sentiment", 0) < -0.15 else YELLOW)
+
+            render_obsidian_panel()
 
         time.sleep(3)
         st.rerun()

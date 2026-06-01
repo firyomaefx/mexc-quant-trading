@@ -27,6 +27,13 @@ from risk.exits_v2 import combined_exit
 from risk.stops import atr_from_df
 from config.settings import ThresholdConfig, WindowConfig
 
+try:
+    from obsidian.trade_logger import get_trade_logger
+    from obsidian.config import get_obsidian_config
+    _OBSIDIAN_AVAILABLE = True
+except Exception:
+    _OBSIDIAN_AVAILABLE = False
+
 
 class LivePaperEngine:
     def __init__(self, config: CryptoConfig, mexc: MEXCHybridConnector):
@@ -49,6 +56,17 @@ class LivePaperEngine:
             cooldown_seconds=config.scalping.cooldown_seconds,
         )
         self.portfolio = PortfolioRiskManager(config)
+
+        self._obsidian_logger = None
+        if _OBSIDIAN_AVAILABLE:
+            try:
+                ob_cfg = get_obsidian_config()
+                if getattr(config, "obsidian", None) and config.obsidian.enabled:
+                    ob_cfg.vault_path = config.obsidian.vault_path
+                    ob_cfg.project_folder = config.obsidian.project_folder
+                self._obsidian_logger = get_trade_logger()
+            except Exception as e:
+                print(f"  [obsidian] init failed: {e}")
 
         self._open_positions: Dict[str, Dict] = {}
         self._trade_history: deque = deque(maxlen=500)
@@ -231,6 +249,32 @@ class LivePaperEngine:
         self.circuit_breaker.record_trade(symbol, pnl)
         self.portfolio.update_pair_performance(symbol, list(self._trade_history))
         self.portfolio.release_position(symbol)
+
+        if self._obsidian_logger is not None:
+            try:
+                ob_trade = {
+                    "symbol": symbol,
+                    "side": "LONG" if pos["direction"] == 1 else "SHORT",
+                    "entry_price": pos["entry_price"],
+                    "exit_price": fill_exit,
+                    "qty": pos["amount"],
+                    "notional": pos["entry_price"] * pos["amount"],
+                    "gross_pnl": round(pnl + 0.0, 6),
+                    "commission": round(0.0, 6),
+                    "pnl": round(pnl, 4),
+                    "pnl_pct": round((pnl / max(self._equity - pnl, 0.01)) * 100.0, 4),
+                    "duration_bars": len(features) - pos["entry_bar"],
+                    "exit_reason": reason,
+                    "z_score": pos.get("entry_zscore", 0.0),
+                    "ema_slope": 0.0,
+                    "ml_confidence": 0.0,
+                    "entry_time": pos.get("entry_time", datetime.now()).isoformat() if hasattr(pos.get("entry_time", datetime.now()), "isoformat") else str(pos.get("entry_time", "")),
+                    "exit_time": datetime.now().isoformat(),
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                }
+                self._obsidian_logger.log_trade(ob_trade)
+            except Exception as e:
+                print(f"  [obsidian] log_trade failed: {e}")
         self._highest_since_entry.pop(symbol, None)
         self._prev_zscore.pop(symbol, None)
 
@@ -421,3 +465,18 @@ class LivePaperEngine:
             print(f"{'='*50}")
         else:
             print("\nNo trades executed.")
+
+        if _OBSIDIAN_AVAILABLE and self._obsidian_logger is not None:
+            try:
+                from obsidian.daily_summary import get_daily_summary
+                from obsidian.index_updater import IndexUpdater
+                summary = get_daily_summary()
+                path = summary.write_daily()
+                if path:
+                    updater = IndexUpdater()
+                    agg = summary.aggregate()
+                    updater.update_summary_index()
+                    updater.update_trade_journal(agg)
+                    print(f"  [obsidian] daily summary: {path}")
+            except Exception as e:
+                print(f"  [obsidian] daily summary failed: {e}")

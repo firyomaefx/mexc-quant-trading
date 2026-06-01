@@ -144,6 +144,22 @@ class BacktestConfig:
 
 
 @dataclass
+class ObsidianConfig:
+    enabled: bool = True
+    vault_path: str = r"C:\Users\User\Obsidian\TTRG"
+    project_folder: str = "10-Projects/MEXC-Quant-Trading"
+    write_trades: bool = True
+    write_daily_summary: bool = True
+    write_kpi: bool = True
+    update_project_index: bool = True
+    update_root_index: bool = False
+    batch_interval_bars: int = 60
+    auto_sync_on_trade: bool = True
+    auto_sync_daily_hour: int = 0
+    frontmatter_tags: List[str] = field(default_factory=lambda: ["mexc", "auto-generated"])
+
+
+@dataclass
 class CryptoConfig:
     pairs: Dict[str, PairConfig] = field(default_factory=dict)
     scalping: ScalpingConfig = field(default_factory=ScalpingConfig)
@@ -155,6 +171,7 @@ class CryptoConfig:
     futures: FuturesConfig = field(default_factory=FuturesConfig)
     paper: PaperConfig = field(default_factory=PaperConfig)
     backtest: BacktestConfig = field(default_factory=BacktestConfig)
+    obsidian: ObsidianConfig = field(default_factory=ObsidianConfig)
 
     @classmethod
     def with_default_pairs(cls) -> "CryptoConfig":
