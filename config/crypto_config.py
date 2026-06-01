@@ -160,6 +160,17 @@ class ObsidianConfig:
 
 
 @dataclass
+class NotificationsConfig:
+    enabled: bool = True
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
+    send_trade_alerts: bool = True
+    send_daily_summary: bool = True
+    send_circuit_breaker: bool = True
+    min_interval_s: float = 1.0
+
+
+@dataclass
 class CryptoConfig:
     pairs: Dict[str, PairConfig] = field(default_factory=dict)
     scalping: ScalpingConfig = field(default_factory=ScalpingConfig)
@@ -172,6 +183,7 @@ class CryptoConfig:
     paper: PaperConfig = field(default_factory=PaperConfig)
     backtest: BacktestConfig = field(default_factory=BacktestConfig)
     obsidian: ObsidianConfig = field(default_factory=ObsidianConfig)
+    notifications: NotificationsConfig = field(default_factory=NotificationsConfig)
 
     @classmethod
     def with_default_pairs(cls) -> "CryptoConfig":

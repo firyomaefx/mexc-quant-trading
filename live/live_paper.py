@@ -34,6 +34,12 @@ try:
 except Exception:
     _OBSIDIAN_AVAILABLE = False
 
+try:
+    from notifications import telegram as tg
+    _TELEGRAM_AVAILABLE = True
+except Exception:
+    _TELEGRAM_AVAILABLE = False
+
 
 class LivePaperEngine:
     def __init__(self, config: CryptoConfig, mexc: MEXCHybridConnector):
@@ -67,6 +73,17 @@ class LivePaperEngine:
                 self._obsidian_logger = get_trade_logger()
             except Exception as e:
                 print(f"  [obsidian] init failed: {e}")
+
+        self._telegram = None
+        if _TELEGRAM_AVAILABLE and getattr(config, "notifications", None) and config.notifications.enabled:
+            try:
+                if tg.telegram_is_configured():
+                    self._telegram = tg
+                    print(f"  [telegram] alerts enabled (chat_id={os.getenv('TELEGRAM_CHAT_ID', '?')[:6]}...)")
+                else:
+                    print("  [telegram] disabled (no TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID)")
+            except Exception as e:
+                print(f"  [telegram] init failed: {e}")
 
         self._open_positions: Dict[str, Dict] = {}
         self._trade_history: deque = deque(maxlen=500)
@@ -123,6 +140,62 @@ class LivePaperEngine:
                     print(f"  No data for {sym}")
             except Exception as e:
                 print(f"  Error loading {sym}: {e}")
+
+        if self.config.ml.enabled:
+            try:
+                self._fit_ml_ensemble()
+            except Exception as e:
+                print(f"  [ml] initial fit failed: {e}")
+
+    def _fit_ml_ensemble(self):
+        all_features = []
+        all_labels = []
+        for sym, feats in self._features_cache.items():
+            if feats is None or len(feats) < 60:
+                continue
+            try:
+                ml_feats = MLSignalEnhancer.compute_ml_features(feats, spread_pct=0.05)
+                if ml_feats is None or len(ml_feats) < 60:
+                    continue
+                closes = feats["close"].values
+                labels = np.zeros(len(closes), dtype=int)
+                for i in range(len(closes) - 1):
+                    ret = (closes[i + 1] - closes[i]) / closes[i] if closes[i] > 0 else 0
+                    if ret > 0.0002:
+                        labels[i] = 1
+                    elif ret < -0.0002:
+                        labels[i] = -1
+                    else:
+                        labels[i] = 0
+                all_features.append(ml_feats.iloc[:-1].copy())
+                all_labels.append(labels[:-1])
+            except Exception as e:
+                print(f"    [ml] features prep for {sym} failed: {e}")
+                continue
+
+        if not all_features:
+            print("  [ml] no features available for fit")
+            return
+        try:
+            X = pd.concat(all_features, axis=0).reset_index(drop=True)
+            y = np.concatenate(all_labels)
+            ok = self.ml_enhancer.fit(X, y)
+            if ok:
+                print(f"  [ml] ensemble fitted on {len(X)} samples, {len(np.unique(y))} classes")
+            else:
+                print("  [ml] ensemble fit returned False (insufficient data)")
+        except Exception as e:
+            print(f"  [ml] fit error: {e}")
+
+    def _maybe_retrain_ml(self):
+        if not self.config.ml.enabled or not self.ml_enhancer._fitted:
+            return
+        n_trades = len(self._trade_history)
+        if n_trades - self.ml_enhancer._last_retrain_trades >= self.config.ml.retrain_interval:
+            try:
+                self._fit_ml_ensemble()
+            except Exception as e:
+                print(f"  [ml] retrain failed: {e}")
 
     def _fetch_new_bar(self, symbol: str) -> bool:
         try:
@@ -275,6 +348,21 @@ class LivePaperEngine:
                 self._obsidian_logger.log_trade(ob_trade)
             except Exception as e:
                 print(f"  [obsidian] log_trade failed: {e}")
+
+        if self._telegram is not None and getattr(self.config, "notifications", None) and self.config.notifications.send_trade_alerts:
+            try:
+                tg_trade = {
+                    "symbol": symbol,
+                    "side": "LONG" if pos["direction"] == 1 else "SHORT",
+                    "entry_price": pos["entry_price"],
+                    "exit_price": fill_exit,
+                    "pnl": round(pnl, 4),
+                    "pnl_pct": round((pnl / max(self._equity - pnl, 0.01)) * 100.0, 4),
+                    "exit_reason": reason,
+                }
+                self._telegram.telegram_send_trade(tg_trade)
+            except Exception as e:
+                print(f"  [telegram] trade alert failed: {e}")
         self._highest_since_entry.pop(symbol, None)
         self._prev_zscore.pop(symbol, None)
 
@@ -446,6 +534,8 @@ class LivePaperEngine:
                     self._equity_curve.append(self._equity)
                     if len(self._equity_curve) > 500:
                         self._equity_curve = self._equity_curve[-500:]
+
+                self._maybe_retrain_ml()
 
             except Exception as e:
                 print(f"  Loop error: {e}")
